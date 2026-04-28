@@ -3,6 +3,9 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
+# 🔥 IMPORTANT: Register EfficientNet before loading model
+from tensorflow.keras.applications import EfficientNetB0
+
 # -----------------------------
 # CONFIG
 # -----------------------------
@@ -16,14 +19,17 @@ CLASS_NAMES = [
     "[Malignant] early Pre-B"
 ]
 
-MODEL_PATH = "best_efficientnet_model.keras"   # or .h5 if you saved that
+MODEL_PATH = "clean_model.keras"   # ✅ use re-saved model
 
 # -----------------------------
 # LOAD MODEL (cached)
 # -----------------------------
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = tf.keras.models.load_model(
+        MODEL_PATH,
+        compile=False   # 🔥 fixes your error
+    )
     return model
 
 model = load_model()
@@ -32,20 +38,20 @@ model = load_model()
 # PREPROCESS FUNCTION
 # -----------------------------
 def preprocess_image(image):
+    image = image.convert("RGB")  # ensure 3 channels
     image = image.resize((IMG_HEIGHT, IMG_WIDTH))
     image = np.array(image)
 
-    # Ensure 3 channels (RGB)
-    if image.shape[-1] == 4:
-        image = image[:, :, :3]
-
-    image = image / 255.0   # SAME as training
+    image = image / 255.0  # SAME as training
     image = np.expand_dims(image, axis=0)
+
     return image
 
 # -----------------------------
 # UI
 # -----------------------------
+st.set_page_config(page_title="Leukemia Classifier", layout="centered")
+
 st.title("🧬 Blood Cancer (ALL) Classification")
 st.write("Upload a microscopic blood cell image to classify leukemia type.")
 
@@ -59,21 +65,34 @@ if uploaded_file is not None:
     # Preprocess
     processed_image = preprocess_image(image)
 
-    # Prediction
-    predictions = model.predict(processed_image)
-    predicted_class = CLASS_NAMES[np.argmax(predictions)]
+    # Predict
+    with st.spinner("Analyzing..."):
+        predictions = model.predict(processed_image)
+
+    predicted_index = np.argmax(predictions)
+    predicted_class = CLASS_NAMES[predicted_index]
     confidence = np.max(predictions)
 
     # -----------------------------
     # OUTPUT
     # -----------------------------
     st.subheader("Prediction:")
-    st.success(f"{predicted_class}")
+    
+    if "Malignant" in predicted_class:
+        st.error(f"⚠️ {predicted_class}")
+    else:
+        st.success(f"✅ {predicted_class}")
 
     st.subheader("Confidence:")
     st.write(f"{confidence * 100:.2f}%")
 
-    # Show all probabilities
+    # Show probabilities
     st.subheader("Class Probabilities:")
     for i, prob in enumerate(predictions[0]):
         st.write(f"{CLASS_NAMES[i]}: {prob*100:.2f}%")
+
+# -----------------------------
+# FOOTER
+# -----------------------------
+st.markdown("---")
+st.caption("⚠️ This tool is for educational purposes only and not for clinical diagnosis.")
