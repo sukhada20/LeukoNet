@@ -3,9 +3,6 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 
-# 🔥 IMPORTANT: Register EfficientNet before loading model
-from tensorflow.keras.applications import EfficientNetB0
-
 # -----------------------------
 # CONFIG
 # -----------------------------
@@ -19,7 +16,7 @@ CLASS_NAMES = [
     "[Malignant] early Pre-B"
 ]
 
-MODEL_PATH = "best_efficientnet_model.h5"  
+MODEL_PATH = "best_efficientnet_model.h5"   # ✅ H5 model
 
 # -----------------------------
 # LOAD MODEL (cached)
@@ -28,7 +25,7 @@ MODEL_PATH = "best_efficientnet_model.h5"
 def load_model():
     model = tf.keras.models.load_model(
         MODEL_PATH,
-        compile=False   # 🔥 fixes your error
+        compile=False   # 🔥 prevents optimizer issues
     )
     return model
 
@@ -42,7 +39,7 @@ def preprocess_image(image):
     image = image.resize((IMG_HEIGHT, IMG_WIDTH))
     image = np.array(image)
 
-    image = image / 255.0  # SAME as training
+    image = image / 255.0  # same as training
     image = np.expand_dims(image, axis=0)
 
     return image
@@ -77,7 +74,7 @@ if uploaded_file is not None:
     # OUTPUT
     # -----------------------------
     st.subheader("Prediction:")
-    
+
     if "Malignant" in predicted_class:
         st.error(f"⚠️ {predicted_class}")
     else:
@@ -86,7 +83,7 @@ if uploaded_file is not None:
     st.subheader("Confidence:")
     st.write(f"{confidence * 100:.2f}%")
 
-    # Show probabilities
+    # Probabilities
     st.subheader("Class Probabilities:")
     for i, prob in enumerate(predictions[0]):
         st.write(f"{CLASS_NAMES[i]}: {prob*100:.2f}%")
