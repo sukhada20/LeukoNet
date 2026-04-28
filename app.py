@@ -1,95 +1,54 @@
 import streamlit as st
-import numpy as np
 import tensorflow as tf
+import numpy as np
 from PIL import Image
 
 # -----------------------------
 # CONFIG
 # -----------------------------
-IMG_HEIGHT = 224
-IMG_WIDTH = 224
-
-CLASS_NAMES = [
-    "Benign",
-    "[Malignant] Pre-B",
-    "[Malignant] Pro-B",
-    "[Malignant] early Pre-B"
-]
-
-MODEL_PATH = "best_efficientnet_model.h5"   # ✅ H5 model
+MODEL_PATH = "model_fixed.h5"
+IMG_SIZE = (224, 224)
 
 # -----------------------------
-# LOAD MODEL (cached)
+# LOAD MODEL
 # -----------------------------
 @st.cache_resource
 def load_model():
     model = tf.keras.models.load_model(
         MODEL_PATH,
-        compile=False   # 🔥 prevents optimizer issues
+        compile=False   # avoids optimizer issues
     )
     return model
 
 model = load_model()
 
 # -----------------------------
-# PREPROCESS FUNCTION
+# IMAGE PREPROCESSING
 # -----------------------------
 def preprocess_image(image):
-    image = image.convert("RGB")  # ensure 3 channels
-    image = image.resize((IMG_HEIGHT, IMG_WIDTH))
-    image = np.array(image)
-
-    image = image / 255.0  # same as training
+    image = image.resize(IMG_SIZE)
+    image = np.array(image) / 255.0
     image = np.expand_dims(image, axis=0)
-
     return image
 
 # -----------------------------
 # UI
 # -----------------------------
-st.set_page_config(page_title="Leukemia Classifier", layout="centered")
+st.title("🧬 LeukoNet - Leukemia Detection")
 
-st.title("🧬 Blood Cancer (ALL) Classification")
-st.write("Upload a microscopic blood cell image to classify leukemia type.")
+uploaded_file = st.file_uploader("Upload Blood Cell Image", type=["jpg", "png", "jpeg"])
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-
+if uploaded_file:
+    image = Image.open(uploaded_file).convert("RGB")
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    # Preprocess
-    processed_image = preprocess_image(image)
+    processed = preprocess_image(image)
 
-    # Predict
-    with st.spinner("Analyzing..."):
-        predictions = model.predict(processed_image)
+    prediction = model.predict(processed)[0][0]
 
-    predicted_index = np.argmax(predictions)
-    predicted_class = CLASS_NAMES[predicted_index]
-    confidence = np.max(predictions)
+    st.subheader("Prediction Result:")
 
-    # -----------------------------
-    # OUTPUT
-    # -----------------------------
-    st.subheader("Prediction:")
-
-    if "Malignant" in predicted_class:
-        st.error(f"⚠️ {predicted_class}")
+    if prediction > 0.5:
+        st.error(f"⚠️ Leukemia Detected (Confidence: {prediction:.2f})")
     else:
-        st.success(f"✅ {predicted_class}")
-
-    st.subheader("Confidence:")
-    st.write(f"{confidence * 100:.2f}%")
-
-    # Probabilities
-    st.subheader("Class Probabilities:")
-    for i, prob in enumerate(predictions[0]):
-        st.write(f"{CLASS_NAMES[i]}: {prob*100:.2f}%")
-
-# -----------------------------
-# FOOTER
-# -----------------------------
-st.markdown("---")
-st.caption("⚠️ This tool is for educational purposes only and not for clinical diagnosis.")
+        st.success(f"✅ Normal (Confidence: {1 - prediction:.2f})")
