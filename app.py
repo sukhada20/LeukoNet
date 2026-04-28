@@ -1,86 +1,68 @@
 import streamlit as st
-import tensorflow as tf
 import numpy as np
 from PIL import Image
+import tensorflow as tf
 
-# -----------------------------
-# CONFIG
-# -----------------------------
-MODEL_PATH = "model.h5"
-IMG_SIZE = 224
-
-CLASS_NAMES = ["ALL", "HEM"]  # change if your classes differ
-
-# -----------------------------
-# LOAD MODEL (cached)
-# -----------------------------
+# =========================
+# Load Model
+# =========================
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+    model = tf.keras.models.load_model("best_efficientnet_model.keras")
     return model
 
 model = load_model()
 
-# -----------------------------
-# IMAGE PREPROCESSING
-# -----------------------------
+# =========================
+# Class Names (EDIT THIS)
+# =========================
+CLASS_NAMES = [
+    "Benign",
+    "[Malignant] Pre-B",
+    "[Malignant] Pro-B",
+    "[Malignant] early Pre-B"
+]
+
+IMG_SIZE = 224  # change if you used different input size
+
+# =========================
+# Preprocessing Function
+# =========================
 def preprocess_image(image):
     image = image.resize((IMG_SIZE, IMG_SIZE))
-    image = np.array(image) / 255.0
+    image = np.array(image)
+
+    # Normalize (important!)
+    image = image / 255.0
+
     image = np.expand_dims(image, axis=0)
     return image
 
-# -----------------------------
+# =========================
 # UI
-# -----------------------------
-st.set_page_config(page_title="Leukonet", page_icon="🧬", layout="centered")
+# =========================
+st.title("🧠 Image Classification App")
+st.write("Upload an image to predict its class")
 
-st.title("🧬 Leukonet - Blood Cancer Detection")
-st.write("Upload a microscopic blood cell image to classify it.")
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-uploaded_file = st.file_uploader(
-    "📤 Upload an Image", 
-    type=["jpg", "jpeg", "png"]
-)
-
-# -----------------------------
-# PREDICTION
-# -----------------------------
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
     
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    with st.spinner("🔍 Analyzing..."):
-        processed = preprocess_image(image)
-        predictions = model.predict(processed)[0]
+    # Preprocess
+    processed_image = preprocess_image(image)
 
-        predicted_class = CLASS_NAMES[np.argmax(predictions)]
-        confidence = np.max(predictions)
+    # Prediction
+    predictions = model.predict(processed_image)
+    predicted_class = np.argmax(predictions)
+    confidence = np.max(predictions)
 
-    # -----------------------------
-    # RESULTS
-    # -----------------------------
-    st.subheader("🧾 Result")
+    st.success(f"Predicted Class: **{CLASS_NAMES[predicted_class]}**")
+    st.info(f"Confidence: {confidence:.2f}")
 
-    if predicted_class == "ALL":
-        st.error(f"⚠️ Prediction: {predicted_class}")
-    else:
-        st.success(f"✅ Prediction: {predicted_class}")
-
-    st.write(f"**Confidence:** {confidence * 100:.2f}%")
-
-    # -----------------------------
-    # PROBABILITY BAR
-    # -----------------------------
-    st.subheader("📊 Class Probabilities")
-
-    for i, class_name in enumerate(CLASS_NAMES):
-        st.write(f"{class_name}: {predictions[i]*100:.2f}%")
-        st.progress(float(predictions[i]))
-
-# -----------------------------
-# FOOTER
-# -----------------------------
-st.markdown("---")
-st.caption("⚠️ This is an AI-based tool and not a medical diagnosis.")
+    # Show all probabilities
+    st.subheader("Class Probabilities")
+    for i, prob in enumerate(predictions[0]):
+        st.write(f"{CLASS_NAMES[i]}: {prob:.4f}")
