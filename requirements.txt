@@ -1,6 +1,7 @@
 kagglehub
-tensorflow
+tensorflow==2.20.0
 numpy
+keras==3.13.2
 keras-tuner
 matplotlib
 seaborn
