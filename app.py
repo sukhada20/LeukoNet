@@ -90,7 +90,7 @@ if uploaded_file is not None:
     # Preprocess the image
     img_array = np.array(image.resize((IMG_WIDTH, IMG_HEIGHT))) # Resize
     img_array = tf.expand_dims(img_array, 0)  # Create a batch
-    img_array = tf.cast(img_array / 255.0, tf.float32) # Rescale
+    img_array = tf.cast(img_array, tf.float32) / 255.0
 
     # Make prediction
     predictions = model.predict(img_array)
