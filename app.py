@@ -24,7 +24,7 @@ def load_model():
     from tensorflow.keras.applications.efficientnet import preprocess_input
 
     model = tf.keras.models.load_model(
-        "best_efficientnet_model.keras",   # or .h5 if needed
+        "best_efficientnet_model.h5",   # or .h5 if needed
         custom_objects={
             "EfficientNetB0": EfficientNetB0,
             "preprocess_input": preprocess_input
