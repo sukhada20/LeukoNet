@@ -68,7 +68,7 @@ dummy_hp = DummyHyperParameters()
 @st.cache_resource
 def load_model():
     try:
-        model = tf.keras.models.load_model('best_efficientnet_model.keras',
+        model = tf.keras.models.load_model('best_model.keras',
                                           custom_objects={'build_model': build_model})
         return model
     except Exception as e:
