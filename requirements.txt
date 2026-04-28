@@ -1,5 +1,9 @@
-streamlit==1.33.0
-tensorflow==2.13.0
-keras==2.13.1
-numpy==1.24.3
-pillow==10.3.0
+kagglehub
+tensorflow
+numpy
+keras-tuner
+matplotlib
+seaborn
+scikit-learn
+Pillow
+streamlit
