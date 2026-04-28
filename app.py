@@ -19,7 +19,7 @@ CLASS_NAMES = [
     "[Malignant] early Pre-B"
 ]
 
-MODEL_PATH = "best_efficientnet_model.keras"   # ✅ use re-saved model
+MODEL_PATH = "best_efficientnet_model.h5"  
 
 # -----------------------------
 # LOAD MODEL (cached)
