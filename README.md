@@ -109,6 +109,10 @@ The application will open in your browser.
 
 Alternatively, available on [StreamLit Link](https://leukonet.streamlit.app/).
 
+<img width="600" height="200" alt="Screenshot 2026-06-06 230747" src="https://github.com/user-attachments/assets/55c377ec-920e-4064-aa49-51935bb4b97a" />
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/9374a39c-a6b1-4a79-9cdf-afde9202752a" />
+
+
 ---
 
 ## 🖼️ Using the Application
