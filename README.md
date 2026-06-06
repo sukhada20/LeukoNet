@@ -1,6 +1,8 @@
 # 🩸LeukoNet: Blood Cell Cancer Classification using Deep Learning🩸
 LeukoNet is an AI-powered blood cell cancer classification system that leverages Transfer Learning and Deep Learning to identify and classify blood cell images into four categories. The project includes model training notebooks, hyperparameter tuning experiments, and a Streamlit web application for real-time inference.
 
+[StreamLit Link](https://leukonet.streamlit.app/)
+
 ---
 
 ## 📌 Project Overview
@@ -105,6 +107,8 @@ streamlit run app.py
 ```
 The application will open in your browser.
 
+Alternatively, available on [StreamLit Link](https://leukonet.streamlit.app/).
+
 ---
 
 ## 🖼️ Using the Application
@@ -156,7 +160,7 @@ Input Blood Cell Image
  4-Class Prediction
 ```
 
-<img width="721" height="248" alt="image" src="https://github.com/user-attachments/assets/b4d07e29-a5e9-47ec-b0ab-76eaf04b7cce" />
+<img width="1000" height="400" alt="image" src="https://github.com/user-attachments/assets/b4d07e29-a5e9-47ec-b0ab-76eaf04b7cce" />
 
 ---
 
